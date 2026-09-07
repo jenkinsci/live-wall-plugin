@@ -18,7 +18,9 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.htmlunit.Page;
 import org.junit.jupiter.api.Test;
+import jenkins.model.Jenkins;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.jvnet.hudson.test.MockFolder;
 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
@@ -280,6 +282,47 @@ class LiveWallViewTest {
         view.setNameReplaceRegex("([unclosed");
 
         assertEquals("job", view.getTiles().get(0).label());
+    }
+
+    @Test
+    void theFormSupportEndpointsRefuseSomeoneWhoCannotConfigureTheView(JenkinsRule r) throws Exception {
+        createView(r, "wall");
+
+        r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                .grant(Jenkins.READ, View.READ)
+                .everywhere()
+                .to("reader")
+                .grant(Jenkins.ADMINISTER)
+                .everywhere()
+                .to("admin"));
+
+        // A reader can look at the wall but has no business driving its configuration form.
+        JenkinsRule.WebClient reader = r.createWebClient().login("reader");
+        reader.setThrowExceptionOnFailingStatusCode(false);
+        assertEquals(
+                403,
+                reader.goTo("view/wall/descriptorByName/io.jenkins.plugins.livewall.LiveWallView/fillPaletteItems", null)
+                        .getWebResponse()
+                        .getStatusCode(),
+                "populating a drop-down needs permission to configure the view");
+        assertEquals(
+                403,
+                reader.goTo(
+                                "view/wall/descriptorByName/io.jenkins.plugins.livewall.LiveWallView/checkRefreshSeconds?value=6",
+                                null)
+                        .getWebResponse()
+                        .getStatusCode(),
+                "and so does validating a field");
+
+        // Somebody who can configure it still gets a working form.
+        JenkinsRule.WebClient admin = r.createWebClient().login("admin");
+        assertEquals(
+                200,
+                admin.goTo("view/wall/descriptorByName/io.jenkins.plugins.livewall.LiveWallView/fillPaletteItems", null)
+                        .getWebResponse()
+                        .getStatusCode(),
+                "the guard must not break the form for the people who need it");
     }
 
     @Test

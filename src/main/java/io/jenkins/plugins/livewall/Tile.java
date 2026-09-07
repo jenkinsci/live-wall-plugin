@@ -39,7 +39,7 @@ public record Tile(
         json.element("label", label);
         json.element("name", fullName);
         json.element("url", url);
-        json.element("status", status.getKey());
+        json.element("status", status.getId());
         if (building) {
             json.element("building", true);
             json.element("startedAt", startedAt);

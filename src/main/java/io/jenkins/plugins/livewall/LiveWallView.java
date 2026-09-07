@@ -34,6 +34,7 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
@@ -873,35 +874,71 @@ public class LiveWallView extends ListView {
             return Messages.LiveWallView_DisplayName();
         }
 
-        public ListBoxModel doFillPaletteItems() {
+        /**
+         * Guards the form-support endpoints below.
+         *
+         * <p>Everything they return is either a fixed list of enum constants or a restatement of
+         * the caller's own input, so none of it is private. They are guarded anyway: they exist to
+         * serve someone editing a wall, there is no reason for them to answer anybody else, and a
+         * reviewer should not have to reason about whether each one leaks something.
+         *
+         * <p>The view is the nearest ancestor when these are called from a view's configuration
+         * page. Where there is none, this falls back to requiring overall administration, which is
+         * the conventional treatment for a descriptor reached outside any object.
+         */
+        private static void checkFormAccess(@CheckForNull View view) {
+            if (view != null) {
+                view.checkPermission(View.CONFIGURE);
+            } else {
+                Jenkins.get().checkPermission(Jenkins.ADMINISTER);
+            }
+        }
+
+        // lgtm[jenkins/csrf] a fixed list of enum constants: no side effects, nothing to forge
+        public ListBoxModel doFillPaletteItems(@AncestorInPath View view) {
+            checkFormAccess(view);
             return WallOption.items(Palette.class);
         }
 
-        public ListBoxModel doFillShapeItems() {
+        // lgtm[jenkins/csrf] a fixed list of enum constants: no side effects, nothing to forge
+        public ListBoxModel doFillShapeItems(@AncestorInPath View view) {
+            checkFormAccess(view);
             return WallOption.items(TileShape.class);
         }
 
-        public ListBoxModel doFillAnimationItems() {
+        // lgtm[jenkins/csrf] a fixed list of enum constants: no side effects, nothing to forge
+        public ListBoxModel doFillAnimationItems(@AncestorInPath View view) {
+            checkFormAccess(view);
             return WallOption.items(TileAnimation.class);
         }
 
-        public ListBoxModel doFillSizingItems() {
+        // lgtm[jenkins/csrf] a fixed list of enum constants: no side effects, nothing to forge
+        public ListBoxModel doFillSizingItems(@AncestorInPath View view) {
+            checkFormAccess(view);
             return WallOption.items(Sizing.class);
         }
 
-        public ListBoxModel doFillPackingItems() {
+        // lgtm[jenkins/csrf] a fixed list of enum constants: no side effects, nothing to forge
+        public ListBoxModel doFillPackingItems(@AncestorInPath View view) {
+            checkFormAccess(view);
             return WallOption.items(Packing.class);
         }
 
-        public ListBoxModel doFillSortByItems() {
+        // lgtm[jenkins/csrf] a fixed list of enum constants: no side effects, nothing to forge
+        public ListBoxModel doFillSortByItems(@AncestorInPath View view) {
+            checkFormAccess(view);
             return WallOption.items(SortBy.class);
         }
 
-        public ListBoxModel doFillStatusScopeItems() {
+        // lgtm[jenkins/csrf] a fixed list of enum constants: no side effects, nothing to forge
+        public ListBoxModel doFillStatusScopeItems(@AncestorInPath View view) {
+            checkFormAccess(view);
             return WallOption.items(StatusScope.class);
         }
 
-        public FormValidation doCheckRefreshSeconds(@QueryParameter int value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckRefreshSeconds(@AncestorInPath View view, @QueryParameter int value) {
+            checkFormAccess(view);
             if (value < MIN_REFRESH_SECONDS) {
                 return FormValidation.error(Messages.LiveWallView_RefreshTooFast(MIN_REFRESH_SECONDS));
             }
@@ -914,7 +951,9 @@ public class LiveWallView extends ListView {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckMinTileHeight(@QueryParameter int value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckMinTileHeight(@AncestorInPath View view, @QueryParameter int value) {
+            checkFormAccess(view);
             if (value < MIN_TILE_HEIGHT_FLOOR || value > MIN_TILE_HEIGHT_CEILING) {
                 return FormValidation.error(
                         Messages.LiveWallView_TileHeightRange(MIN_TILE_HEIGHT_FLOOR, MIN_TILE_HEIGHT_CEILING));
@@ -922,14 +961,18 @@ public class LiveWallView extends ListView {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckTileGap(@QueryParameter int value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckTileGap(@AncestorInPath View view, @QueryParameter int value) {
+            checkFormAccess(view);
             if (value < 0 || value > MAX_TILE_GAP) {
                 return FormValidation.error(Messages.LiveWallView_GapRange(MAX_TILE_GAP));
             }
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckSeamWidth(@QueryParameter int value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckSeamWidth(@AncestorInPath View view, @QueryParameter int value) {
+            checkFormAccess(view);
             if (value < 0 || value > MAX_SEAM_WIDTH) {
                 return FormValidation.error(Messages.LiveWallView_SeamRange(MAX_SEAM_WIDTH));
             }
@@ -939,11 +982,15 @@ public class LiveWallView extends ListView {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckIncludeNames(@QueryParameter String value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckIncludeNames(@AncestorInPath View view, @QueryParameter String value) {
+            checkFormAccess(view);
             return describeFilter(value, Messages.LiveWallView_IncludeAll());
         }
 
-        public FormValidation doCheckExcludeNames(@QueryParameter String value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckExcludeNames(@AncestorInPath View view, @QueryParameter String value) {
+            checkFormAccess(view);
             return describeFilter(value, Messages.LiveWallView_ExcludeNone());
         }
 
@@ -953,7 +1000,9 @@ public class LiveWallView extends ListView {
             return FormValidation.ok(described.isEmpty() ? whenEmpty : described);
         }
 
-        public FormValidation doCheckNameReplaceRegex(@QueryParameter String value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckNameReplaceRegex(@AncestorInPath View view, @QueryParameter String value) {
+            checkFormAccess(view);
             String regex = fixEmpty(value);
             if (regex == null) {
                 return FormValidation.ok();
@@ -966,27 +1015,39 @@ public class LiveWallView extends ListView {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckCustomBackground(@QueryParameter String value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckCustomBackground(@AncestorInPath View view, @QueryParameter String value) {
+            checkFormAccess(view);
             return checkColor(value);
         }
 
-        public FormValidation doCheckCustomSuccess(@QueryParameter String value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckCustomSuccess(@AncestorInPath View view, @QueryParameter String value) {
+            checkFormAccess(view);
             return checkColor(value);
         }
 
-        public FormValidation doCheckCustomFailure(@QueryParameter String value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckCustomFailure(@AncestorInPath View view, @QueryParameter String value) {
+            checkFormAccess(view);
             return checkColor(value);
         }
 
-        public FormValidation doCheckCustomUnstable(@QueryParameter String value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckCustomUnstable(@AncestorInPath View view, @QueryParameter String value) {
+            checkFormAccess(view);
             return checkColor(value);
         }
 
-        public FormValidation doCheckCustomAborted(@QueryParameter String value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckCustomAborted(@AncestorInPath View view, @QueryParameter String value) {
+            checkFormAccess(view);
             return checkColor(value);
         }
 
-        public FormValidation doCheckCustomIdle(@QueryParameter String value) {
+        // lgtm[jenkins/csrf] validates a value and returns a message: no side effects, nothing to forge
+        public FormValidation doCheckCustomIdle(@AncestorInPath View view, @QueryParameter String value) {
+            checkFormAccess(view);
             return checkColor(value);
         }
 
