@@ -247,8 +247,20 @@ comfortably type on. They do not change the saved configuration.
 | `burnin` | `0` or `1` |
 
 The view page has a preview bar that does the same thing against your real jobs: drop-downs for
-palette, shape, animation, packing and order, and sliders for the gap and the separator. Nothing
-there is saved — it is for finding a look you like before committing it under **Configure**.
+palette, shape, animation, packing and order, and sliders for the gap and the separator. Moving one
+changes the wall in front of you and nothing else, so you can try a palette on the real thing
+without committing to it.
+
+**Save this look** then keeps what you arrived at. It writes those seven settings to the view, so
+the kiosk page and full screen open with them, for everyone — the point being that the look you
+chose by eye is the look the television gets, without reproducing the same choices from memory
+under **Configure**.
+
+Only those seven are written. Anything else the view carries — sizing, status scope, the refresh
+interval, the name filters — is left exactly as it was, so saving a look cannot quietly undo
+something set on the Configure page. The button appears only if you have permission to configure
+the view, and the endpoint behind it checks that permission again rather than trusting the button's
+absence.
 
 Ordering is decided on the server, so `?sort=` travels to the data endpoint rather than being
 restyled in the browser. `…/view/<name>/wallData?sortBy=status` is a perfectly good API call on its

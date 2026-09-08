@@ -93,7 +93,25 @@
           <input type="range" min="0" max="12" step="1" data-lw-preview="seam" />
         </label>
 
-        <span class="lw-hint">${%preview.hint}</span>
+        <!-- Only offered to someone who could change this in Configure anyway; doSaveLook checks
+             the same permission again, because a hidden button is not a control. -->
+        <j:if test="${it.lookSavable}">
+          <button type="button" class="jenkins-button" data-lw-action="save"
+                  data-lw-save-url="${rootURL}/${it.viewUrl}saveLook"
+                  data-lw-crumb-field="${h.crumbRequestField}"
+                  data-lw-crumb="${h.getCrumb(request2)}"
+                  data-lw-saved-text="${%saved.ok}"
+                  data-lw-failed-text="${%saved.failed}">
+            ${%Save this look}
+          </button>
+        </j:if>
+
+        <span class="lw-hint" data-lw-role="hint">
+          <j:choose>
+            <j:when test="${it.lookSavable}">${%preview.hint.savable}</j:when>
+            <j:otherwise>${%preview.hint.readonly}</j:otherwise>
+          </j:choose>
+        </span>
       </div>
 
       <lw:wall variant="embedded" />

@@ -300,6 +300,14 @@
             });
         }
 
+        var save = document.querySelector('[data-lw-action="save"]');
+        if (save) {
+            save.addEventListener("click", function (event) {
+                event.preventDefault();
+                self.saveLook(save);
+            });
+        }
+
         var controls = document.querySelectorAll("[data-lw-preview]");
         for (var i = 0; i < controls.length; i++) {
             var control = controls[i];
@@ -337,6 +345,62 @@
             this.refreshInk();
         }
         this.scheduleLayout();
+    };
+
+    /**
+     * Writes what the preview bar is currently showing to the view, so the kiosk page and full
+     * screen open with it. Sends only the settings the bar owns; the server leaves the rest alone.
+     */
+    Wall.prototype.saveLook = function (button) {
+        var self = this;
+        var url = button.dataset.lwSaveUrl;
+        if (!url) {
+            return;
+        }
+
+        var body = new URLSearchParams();
+        body.set("palette", this.root.dataset.palette || "");
+        body.set("shape", this.root.dataset.shape || "");
+        body.set("animation", this.root.dataset.animation || "");
+        body.set("packing", this.root.dataset.packing || "");
+        body.set("sortBy", this.root.dataset.sortBy || "");
+        body.set("gap", String(this.tileGap));
+        body.set("seam", String(this.seamWidth));
+
+        // The crumb is rendered into the button server-side: it is bound to the HTTP session, so it
+        // cannot be fetched from a different one and has to travel with the request.
+        var headers = { Accept: "application/json" };
+        if (button.dataset.lwCrumbField && button.dataset.lwCrumb) {
+            headers[button.dataset.lwCrumbField] = button.dataset.lwCrumb;
+        }
+
+        button.disabled = true;
+        fetch(url, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: headers,
+            body: body,
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status);
+                }
+                self.announce(button.dataset.lwSavedText || "Saved.");
+            })
+            .catch(function () {
+                self.announce(button.dataset.lwFailedText || "Could not save.");
+            })
+            .then(function () {
+                button.disabled = false;
+            });
+    };
+
+    /** Replaces the hint under the preview bar with a one-off message. */
+    Wall.prototype.announce = function (message) {
+        var hint = document.querySelector('[data-lw-role="hint"]');
+        if (hint) {
+            hint.textContent = message;
+        }
     };
 
     /** Keeps the number next to a slider in step with it. */

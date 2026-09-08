@@ -17,7 +17,10 @@ import java.util.stream.Collectors;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.htmlunit.HttpMethod;
 import org.htmlunit.Page;
+import org.htmlunit.WebRequest;
+import org.htmlunit.util.NameValuePair;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
@@ -536,6 +539,96 @@ class LiveWallViewTest {
                 kiosk.contains("data-data-url=\"" + r.contextPath + "/view/wall/wallData\""),
                 "the kiosk page must poll through the Jenkins root, not the server root");
         assertTrue(kiosk.contains("data-root-url=\"" + r.contextPath + "/\""), "and link to jobs through it too");
+    }
+
+    @Test
+    void savingTheLookPersistsOnlyWhatThePreviewBarOwns(JenkinsRule r) throws Exception {
+        LiveWallView view = createView(r, "wall");
+        view.setSizing("scroll");
+        view.setStatusScope("problems");
+        view.setRefreshSeconds(23);
+
+        JenkinsRule.WebClient client = r.createWebClient();
+        WebRequest post = new WebRequest(client.createCrumbedUrl("view/wall/saveLook"), HttpMethod.POST);
+        post.setRequestParameters(List.of(
+                new NameValuePair("palette", "neon"),
+                new NameValuePair("shape", "hexagon"),
+                new NameValuePair("animation", "stripes"),
+                new NameValuePair("packing", "grid"),
+                new NameValuePair("sortBy", "status"),
+                new NameValuePair("gap", "6"),
+                new NameValuePair("seam", "4")));
+        assertEquals(200, client.getPage(post).getWebResponse().getStatusCode());
+
+        assertSame(Palette.NEON, view.getPalette());
+        assertSame(TileShape.HEXAGON, view.getShape());
+        assertSame(TileAnimation.STRIPES, view.getAnimation());
+        assertSame(Packing.GRID, view.getPacking());
+        assertSame(SortBy.STATUS, view.getSortBy());
+        assertEquals(6, view.getTileGap());
+        assertEquals(4, view.getSeamWidth());
+
+        // The bar cannot reach these, so saving from it must not quietly reset them to defaults.
+        assertSame(Sizing.SCROLL, view.getSizing(), "saving a look must not touch sizing");
+        assertSame(StatusScope.PROBLEMS, view.getStatusScope(), "nor the status scope");
+        assertEquals(23, view.getRefreshSeconds(), "nor the refresh interval");
+
+        // And it has to survive a reload, or the television will not see it.
+        View reloaded = r.jenkins.getView("wall");
+        assertNotNull(reloaded);
+        assertSame(Palette.NEON, ((LiveWallView) reloaded).getPalette());
+    }
+
+    @Test
+    void theSaveButtonCarriesAWorkingCrumb(JenkinsRule r) throws Exception {
+        createView(r, "wall");
+
+        JenkinsRule.WebClient client = r.createWebClient();
+        client.setJavaScriptEnabled(false);
+        String page = client.goTo("view/wall/").getWebResponse().getContentAsString();
+
+        // The crumb is rendered server-side into the button because it is bound to the HTTP
+        // session. If this expression ever breaks, the button silently stops working.
+        assertTrue(page.contains("data-lw-action=\"save\""), "the Save button should be offered");
+        assertTrue(
+                page.contains("data-lw-crumb-field=\""
+                        + Jenkins.get().getCrumbIssuer().getCrumbRequestField()),
+                "with the crumb field name");
+        assertFalse(page.contains("data-lw-crumb=\"\""), "and a crumb that is not empty");
+    }
+
+    @Test
+    void savingTheLookNeedsPermissionAndAPost(JenkinsRule r) throws Exception {
+        createView(r, "wall");
+
+        r.jenkins.setSecurityRealm(r.createDummySecurityRealm());
+        r.jenkins.setAuthorizationStrategy(new MockAuthorizationStrategy()
+                .grant(Jenkins.READ, View.READ)
+                .everywhere()
+                .to("reader")
+                .grant(Jenkins.ADMINISTER)
+                .everywhere()
+                .to("admin"));
+
+        JenkinsRule.WebClient reader = r.createWebClient().login("reader");
+        reader.setThrowExceptionOnFailingStatusCode(false);
+
+        WebRequest post = new WebRequest(reader.createCrumbedUrl("view/wall/saveLook"), HttpMethod.POST);
+        post.setRequestParameters(List.of(new NameValuePair("palette", "neon")));
+        assertEquals(
+                403,
+                reader.getPage(post).getWebResponse().getStatusCode(),
+                "someone who can only read the wall cannot change it for everyone");
+
+        // A GET must not change state either, however well-formed it looks.
+        assertEquals(
+                405,
+                reader.goTo("view/wall/saveLook?palette=neon", null)
+                        .getWebResponse()
+                        .getStatusCode(),
+                "saving a look is a POST");
+
+        assertSame(Palette.VIVID, ((LiveWallView) r.jenkins.getView("wall")).getPalette());
     }
 
     @Test

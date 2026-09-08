@@ -40,6 +40,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest2;
 import org.kohsuke.stapler.StaplerResponse2;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.kohsuke.stapler.verb.GET;
 
 /**
@@ -644,6 +645,74 @@ public class LiveWallView extends ListView {
         rsp.setContentType("application/json;charset=UTF-8");
         rsp.setHeader("Cache-Control", "no-store, must-revalidate");
         rsp.getWriter().write(payload.toString());
+    }
+
+    /**
+     * Persists the settings the preview bar can reach, so that a look arrived at by eye becomes the
+     * look the television gets.
+     *
+     * <p>The preview controls deliberately change nothing on the server: you can try a palette on a
+     * wall of real jobs without committing to it. That leaves a gap, though — having found the right
+     * one, the only way to keep it was to reproduce the same choices in Configure from memory. This
+     * closes that gap without making the preview itself destructive.
+     *
+     * <p>Only the seven settings the bar exposes are touched. Everything else the view carries is
+     * left exactly as it was, so this can never quietly undo something set in Configure.
+     */
+    @RequirePOST
+    public void doSaveLook(
+            StaplerResponse2 rsp,
+            @QueryParameter String palette,
+            @QueryParameter String shape,
+            @QueryParameter String animation,
+            @QueryParameter String packing,
+            @QueryParameter String sortBy,
+            @QueryParameter String gap,
+            @QueryParameter String seam)
+            throws IOException {
+        // Looking at a wall is View.READ; changing what everyone else sees on it is not.
+        checkPermission(View.CONFIGURE);
+
+        // Every setter below parses with a fallback and clamps its range, so unrecognised input
+        // lands on the documented default rather than being rejected or stored.
+        setPalette(palette);
+        setShape(shape);
+        setAnimation(animation);
+        setPacking(packing);
+        setSortBy(sortBy);
+        setTileGap(parseIntOr(gap, getTileGap()));
+        setSeamWidth(parseIntOr(seam, getSeamWidth()));
+        save();
+
+        JSONObject payload = new JSONObject();
+        payload.element("saved", true);
+        payload.element("palette", getPalette().getId());
+        payload.element("shape", getShape().getId());
+        payload.element("animation", getAnimation().getId());
+        payload.element("packing", getPacking().getId());
+        payload.element("sortBy", getSortBy().getId());
+        payload.element("gap", getTileGap());
+        payload.element("seam", getSeamWidth());
+
+        rsp.setContentType("application/json;charset=UTF-8");
+        rsp.setHeader("Cache-Control", "no-store, must-revalidate");
+        rsp.getWriter().write(payload.toString());
+    }
+
+    /** Whether the viewer may use the Save button, which is also enforced by {@link #doSaveLook}. */
+    public boolean isLookSavable() {
+        return hasPermission(View.CONFIGURE);
+    }
+
+    private static int parseIntOr(@CheckForNull String value, int fallback) {
+        if (value == null || value.isBlank()) {
+            return fallback;
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
     }
 
     @Override
