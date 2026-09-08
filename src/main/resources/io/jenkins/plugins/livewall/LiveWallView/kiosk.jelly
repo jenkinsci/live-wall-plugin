@@ -1,15 +1,20 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:lw="/lib/livewall">
-  <st:contentType value="text/html;charset=UTF-8" />
-  <html lang="en">
-    <head>
-      <title>${it.displayName}</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta name="robots" content="noindex, nofollow" />
-      <st:adjunct includes="io.jenkins.plugins.livewall.wall" />
-    </head>
-    <body class="lw-body">
-      <lw:wall variant="kiosk" />
-    </body>
-  </html>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:lw="/lib/livewall">
+  <!-- l:view rather than a bare <html>: it calls Functions.initPageVariables, which is what defines
+       ${rootURL}. Without it every URL the wall builds is rooted at "/", so a controller served from
+       a prefix (a reverse proxy, or mvn hpi:run at /jenkins) fetches /view/x/wallData and gets a 404.
+       It also declares this page dispatchable, and sets the content type from the attribute below. -->
+  <l:view contentType="text/html;charset=UTF-8">
+    <html lang="en">
+      <head>
+        <title>${it.displayName}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="noindex, nofollow" />
+        <st:adjunct includes="io.jenkins.plugins.livewall.wall" />
+      </head>
+      <body class="lw-body">
+        <lw:wall variant="kiosk" />
+      </body>
+    </html>
+  </l:view>
 </j:jelly>

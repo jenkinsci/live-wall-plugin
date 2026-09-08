@@ -515,6 +515,43 @@ class LiveWallViewTest {
         assertFalse(kiosk.contains("breadcrumbBar"), "nothing but the wall on the television page");
     }
 
+    @Test
+    void theKioskPageAddressesJenkinsThroughItsOwnRootAndNotTheServerRoot(JenkinsRule r) throws Exception {
+        r.createFreeStyleProject("some-job");
+        LiveWallView view = createView(r, "wall");
+        view.setIncludeRegex(".*");
+
+        JenkinsRule.WebClient client = r.createWebClient();
+        client.setJavaScriptEnabled(false);
+        String kiosk = client.goTo("view/wall/wall").getWebResponse().getContentAsString();
+
+        // The harness serves Jenkins from a context path, which is exactly the case this page used
+        // to get wrong: rendering a bare <html> left ${rootURL} undefined, so the wall polled
+        // /view/wall/wallData instead of <root>/view/wall/wallData and every refresh was a 404.
+        // Anyone behind a reverse proxy, or running mvn hpi:run, saw a permanently empty wall.
+        assertTrue(
+                kiosk.contains("data-data-url=\"" + r.contextPath + "/view/wall/wallData\""),
+                "the kiosk page must poll through the Jenkins root, not the server root");
+        assertTrue(
+                kiosk.contains("data-root-url=\"" + r.contextPath + "/\""), "and link to jobs through it too");
+    }
+
+    @Test
+    void theViewPageStillOffersTheOtherViewsToNavigateTo(JenkinsRule r) throws Exception {
+        createView(r, "wall");
+        createView(r, "elsewhere");
+
+        JenkinsRule.WebClient client = r.createWebClient();
+        client.setJavaScriptEnabled(false);
+        String embedded = client.goTo("view/wall/").getWebResponse().getContentAsString();
+
+        // Replacing View/main.jelly wholesale means the view tabs are ours to render; without them
+        // the wall is a dead end you can only leave through the breadcrumbs.
+        assertTrue(
+                embedded.contains(r.contextPath + "/view/elsewhere/"),
+                "the view page has to render the view tabs itself");
+    }
+
     private static JobStatus statusOf(List<Tile> tiles, String label) {
         return tiles.stream()
                 .filter(tile -> tile.label().equals(label))

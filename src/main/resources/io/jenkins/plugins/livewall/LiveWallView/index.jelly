@@ -5,6 +5,21 @@
     <l:main-panel>
       <st:adjunct includes="io.jenkins.plugins.livewall.wall" />
 
+      <!-- The row of view tabs. A custom view has to render this itself: core draws it from
+           View/main.jelly, which this view replaces wholesale, so without it there is no way to
+           navigate to another view from here. Mirrors what core does, including the two tab bar
+           flavours. -->
+      <j:set var="views" value="${it.owner.views}" />
+      <j:set var="currentView" value="${it}" />
+      <j:choose>
+        <j:when test="${it.isMyViewsProperty()}">
+          <st:include it="${it.owner.viewsTabBar}" page="viewTabs" />
+        </j:when>
+        <j:otherwise>
+          <st:include it="${it.owner.userViewsTabBar}" page="viewTabs" />
+        </j:otherwise>
+      </j:choose>
+
       <!-- Try a look against your real jobs before committing to it. Nothing here is saved: the
            wall a television loads comes from the view configuration, or from URL parameters. -->
       <div class="lw-preview-bar">
