@@ -189,8 +189,7 @@ public class LiveWallView extends ListView {
             seamWidth = clampRange(seamWidth, 0, MAX_SEAM_WIDTH);
         }
         refreshSeconds = clamp(refreshSeconds, MIN_REFRESH_SECONDS, MAX_REFRESH_SECONDS, DEFAULT_REFRESH_SECONDS);
-        minTileHeight =
-                clamp(minTileHeight, MIN_TILE_HEIGHT_FLOOR, MIN_TILE_HEIGHT_CEILING, DEFAULT_MIN_TILE_HEIGHT);
+        minTileHeight = clamp(minTileHeight, MIN_TILE_HEIGHT_FLOOR, MIN_TILE_HEIGHT_CEILING, DEFAULT_MIN_TILE_HEIGHT);
         compileNameReplacePattern();
         compileNameFilter();
         return this;

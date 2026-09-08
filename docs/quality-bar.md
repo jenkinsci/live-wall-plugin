@@ -78,6 +78,17 @@ The fix, and the general rule worth keeping:
 If you change how the scan works, keep those guards. A security gate that cannot fail is worse than
 no gate, because it is believed.
 
+### The same trap caught the formatting check
+
+The plugin parent pom sets `spotless.check.skip` to `true` by default. So `mvn clean verify` was
+green on a tree spotless did not consider formatted, this page listed formatting as part of the test
+gate, and both statements were true at once — because nothing was checking. It surfaced only when
+someone ran `spotless:apply` and it rewrote seven files nobody had touched.
+
+`pom.xml` now sets it to `false`, and the tree was reformatted once to match. Same rule as above: a
+gate that cannot fail is worse than no gate. If `mvn clean verify` complains about formatting,
+`mvn spotless:apply` fixes it.
+
 ## When zero is not reachable
 
 If something the plugin genuinely ships ever has a vulnerability with no fix available, add an entry

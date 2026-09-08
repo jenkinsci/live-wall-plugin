@@ -149,9 +149,10 @@ final class NameFilter {
                     continue;
                 }
                 boolean wildcard = pattern.indexOf('*') >= 0 || pattern.indexOf('?') >= 0;
-                parts.add(wildcard
-                        ? "names matching " + pattern
-                        : "names containing " + pattern.toLowerCase(Locale.ROOT));
+                parts.add(
+                        wildcard
+                                ? "names matching " + pattern
+                                : "names containing " + pattern.toLowerCase(Locale.ROOT));
             }
         }
         return String.join(", or ", parts);

@@ -10,7 +10,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
  * room for the label, which the layout code compensates for with a per-shape text inset.
  */
 public enum TileShape implements WallOption {
-
     RECTANGLE("rectangle", "Rectangle"),
     ROUNDED("rounded", "Rounded rectangle (default)"),
     SQUARE("square", "Square"),
