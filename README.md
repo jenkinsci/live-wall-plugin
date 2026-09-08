@@ -18,6 +18,16 @@ clock.](docs/images/wall-hexagon.png)
 *Hexagons interlocked into a honeycomb. Jobs building right now sort to the top left, and the
 striped fill means Jenkins has no duration estimate to draw a progress bar from yet.*
 
+## See it running
+
+Forty seconds against a real controller: palettes and shapes changing on a live wall of 42 jobs,
+saving the look, and the kiosk page a television would be pointed at.
+
+https://github.com/user-attachments/assets/2a78178a-342e-46e0-a370-7cf2a3b915e9
+
+*No player above? [Watch the demo](https://github.com/user-attachments/assets/2a78178a-342e-46e0-a370-7cf2a3b915e9)
+— the inline video only renders on GitHub.*
+
 ---
 
 ## Why
@@ -108,11 +118,15 @@ type on:
 ```
 
 The view page also has a preview bar: drop-downs for palette, shape, animation, packing and order,
-and sliders for the gap and the separator, all applied to your real jobs as you change them. Nothing
-there is saved — it is for finding a look before committing it under **Configure**.
+and sliders for the gap and the separator, all applied to your real jobs as you change them. Moving
+one changes the wall in front of you and nothing else, so you can try a palette on the real thing
+without committing to it — and **Save this look** then keeps what you arrived at, so the kiosk page
+and full screen open with it too.
 
-![The Live Wall view inside Jenkins, with a row of preview controls above the wall: palette, shape,
-animation, packing, order, and sliders for gap and separator.](docs/images/view-page.png)
+![The Live Wall view inside Jenkins. Above the wall, a row of controls: Full screen, Open kiosk
+page, drop-downs for palette, shape, animation, packing and order, sliders for gap and separator,
+and a Save this look button. Below them, a honeycomb of hexagonal tiles in the high-contrast
+palette.](docs/images/view-page.png)
 
 Every setting is documented in **[docs/configuration.md](docs/configuration.md)**.
 
