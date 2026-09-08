@@ -522,6 +522,29 @@ class LiveWallViewTest {
     }
 
     @Test
+    void theBuildNumberSettingReachesTheBrowserAsAnAttributeTheStylesheetCanSee(JenkinsRule r) throws Exception {
+        r.createFreeStyleProject("job2");
+        LiveWallView view = createView(r, "wall");
+        view.setIncludeRegex(".*");
+
+        JenkinsRule.WebClient client = r.createWebClient();
+        client.setJavaScriptEnabled(false);
+
+        String off = client.goTo("view/wall/wall").getWebResponse().getContentAsString();
+        assertTrue(off.contains("data-show-build-number=\"false\""), "off by default");
+
+        view.setShowBuildNumber(true);
+
+        // wall.css reserves room below the label from this attribute, and wall.js sizes the badge
+        // from the tile rather than from the label only when it is set. Rename it and build numbers
+        // silently go back to being drawn on top of the job name.
+        String on = client.goTo("view/wall/wall").getWebResponse().getContentAsString();
+        assertTrue(
+                on.contains("data-show-build-number=\"true\""),
+                "the stylesheet needs this hook to keep the label clear of the badge");
+    }
+
+    @Test
     void theKioskPageAddressesJenkinsThroughItsOwnRootAndNotTheServerRoot(JenkinsRule r) throws Exception {
         r.createFreeStyleProject("some-job");
         LiveWallView view = createView(r, "wall");

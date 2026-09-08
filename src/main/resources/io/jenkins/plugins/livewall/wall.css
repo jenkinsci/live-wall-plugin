@@ -422,16 +422,34 @@
     z-index: 2;
     inset-block-end: 0.35em;
     inset-inline-end: 0.5em;
-    font-size: calc(var(--lw-font-size, 16px) * 0.42);
+    /* Sized from the tile by live-wall.js, which also reserves the room below. The fallback is the
+       old label-relative size, only used if the script has not measured yet. */
+    font-size: var(--lw-badge-size, calc(var(--lw-font-size, 16px) * 0.42));
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     opacity: 0.62;
+}
+
+/* Keep the name out of the badge's corner. Without this, a short job name grows to fill the tile
+   and the build number is drawn on top of it. */
+.lw-root[data-show-build-number="true"] .lw-label {
+    margin-block-end: var(--lw-badge-reserve, 0px);
+    max-height: calc(100% - var(--lw-text-inset, 12%) * 2 - var(--lw-badge-reserve, 0px));
 }
 
 .lw-root[data-shape="cross"] .lw-tile .lw-badge,
 .lw-root[data-shape="diamond"] .lw-tile .lw-badge,
 .lw-root[data-shape="circle"] .lw-tile .lw-badge {
     display: none; /* nowhere sensible to put it inside these silhouettes */
+}
+
+/* ...and with no badge drawn, there is nothing to reserve room for. Must stay in step with
+   BADGELESS_SHAPES in live-wall.js. */
+.lw-root[data-shape="cross"] .lw-label,
+.lw-root[data-shape="diamond"] .lw-label,
+.lw-root[data-shape="circle"] .lw-label {
+    margin-block-end: 0;
+    max-height: calc(100% - var(--lw-text-inset, 12%) * 2);
 }
 
 /* ------------------------------------------------------------------ shapes */

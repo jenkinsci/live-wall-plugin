@@ -5,14 +5,16 @@
 **Please do not open a public issue for a security problem.** A public issue about a Jenkins plugin
 tells everyone running it exactly how to attack them, before there is a fix to upgrade to.
 
-Report it privately instead, whichever is easier:
+**Report it to the Jenkins security team**, by filing an issue of type *Security* in the Jenkins
+issue tracker at [issues.jenkins.io](https://issues.jenkins.io/), against the `live-wall`
+component. Such issues are visible only to you and the security team. The full process is described
+in [How to report a security issue](https://www.jenkins.io/security/reporting/).
 
-- **GitHub** — [open a private security advisory](https://github.com/eduardocerqueira/jenkins-live-wall/security/advisories/new)
-  on this repository. Only the maintainers can see it.
-- **The Jenkins security team** — follow
-  [How to report a security issue](https://www.jenkins.io/security/reporting/). This is the right
-  route once the plugin is hosted under the `jenkinsci` organisation, and it is always a valid one:
-  the Jenkins security team coordinates disclosure and publishes advisories for every plugin.
+That is the only route to use, and deliberately the only one offered here. Reporting anywhere else —
+including a GitHub private security advisory on this repository — cannot lead to a CVE being
+assigned, because for Jenkins plugins only the Jenkins security team can do that. They also
+coordinate the disclosure, the advisory and the release, none of which a maintainer can arrange
+alone.
 
 Please include the plugin version, your Jenkins version, and enough detail to reproduce it. You will
 get an acknowledgement, and credit in the advisory unless you would rather not have it.

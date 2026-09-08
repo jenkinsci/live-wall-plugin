@@ -63,6 +63,10 @@
 
     var SQUARE_SHAPES = { square: 1, circle: 1, cross: 1 };
 
+    /* Silhouettes with no sensible corner to put a build number in. Must stay in step with the
+       rule that hides .lw-badge for these shapes in wall.css. */
+    var BADGELESS_SHAPES = { cross: 1, diamond: 1, circle: 1 };
+
     /*
      * How each shape locks into its neighbours, in fractions of a grid cell.
      *
@@ -849,6 +853,23 @@
         var seam = this.seamWidth;
         var availableWidth = (shapeWidth - seam * 2) * (1 - inset * 2);
         var availableHeight = (shapeHeight - seam * 2) * (1 - inset * 2);
+
+        // The build number is secondary information, so it is sized from the tile rather than from
+        // the label. Deriving it from the label meant a two-character job name -- which fits at an
+        // enormous font size -- produced an enormous build number too, and the two collided in the
+        // corner. Room is then reserved so the label cannot grow into it at all.
+        var reserve = 0;
+        if (this.showBuildNumber && !BADGELESS_SHAPES[shape]) {
+            var badgeSize = Math.max(9, Math.min(availableHeight * 0.16, 34));
+            reserve = badgeSize * 1.7;
+            // Never starve the name itself: it is the thing the wall exists to show.
+            availableHeight = Math.max(availableHeight * 0.45, availableHeight - reserve);
+            this.root.style.setProperty("--lw-badge-size", badgeSize.toFixed(1) + "px");
+            this.root.style.setProperty("--lw-badge-reserve", reserve.toFixed(1) + "px");
+        } else {
+            this.root.style.removeProperty("--lw-badge-size");
+            this.root.style.removeProperty("--lw-badge-reserve");
+        }
 
         var font = "800 100px " + window.getComputedStyle(this.root).fontFamily;
         var cache = new Map();

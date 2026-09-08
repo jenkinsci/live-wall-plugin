@@ -61,6 +61,20 @@ Each override stands on its own — an `exclude` on the URL keeps whatever inclu
 saved — and neither can reveal a job the viewer could not already see. The include regex from a
 plain list view is still there under **Regular expression filter** if you already depend on it.
 
+### Filtering on something other than the name
+
+The two fields above only look at names, because that is what a wall usually needs. For anything
+richer — build status, most recent build, SCM, parameters, job type, unclassified jobs, set
+arithmetic between filters — install
+[View Job Filters](https://plugins.jenkins.io/view-job-filters/). Its filters appear on this view's
+configuration page and work here exactly as they do on a list view, because a Live Wall builds its
+tiles from `ListView.getItems()`, which is what applies them.
+
+They compose, and in this order: the job picker and the job filters decide which jobs the view
+contains, then the name fields above narrow that down, then **Show** drops anything that is not a
+problem if you asked it to. Nothing in this plugin duplicates what View Job Filters already does
+well.
+
 ## Look
 
 ### Colour palette
