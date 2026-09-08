@@ -38,7 +38,8 @@ public interface WallOption {
         if (id != null) {
             String trimmed = id.trim();
             for (E candidate : type.getEnumConstants()) {
-                if (candidate.getId().equalsIgnoreCase(trimmed) || candidate.name().equalsIgnoreCase(trimmed)) {
+                if (candidate.getId().equalsIgnoreCase(trimmed)
+                        || candidate.name().equalsIgnoreCase(trimmed)) {
                     return candidate;
                 }
             }
