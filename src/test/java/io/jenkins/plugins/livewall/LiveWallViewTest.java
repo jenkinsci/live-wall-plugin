@@ -14,11 +14,11 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.htmlunit.Page;
 import org.junit.jupiter.api.Test;
-import jenkins.model.Jenkins;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.MockAuthorizationStrategy;
 import org.jvnet.hudson.test.MockFolder;
@@ -302,7 +302,9 @@ class LiveWallViewTest {
         reader.setThrowExceptionOnFailingStatusCode(false);
         assertEquals(
                 403,
-                reader.goTo("view/wall/descriptorByName/io.jenkins.plugins.livewall.LiveWallView/fillPaletteItems", null)
+                reader.goTo(
+                                "view/wall/descriptorByName/io.jenkins.plugins.livewall.LiveWallView/fillPaletteItems",
+                                null)
                         .getWebResponse()
                         .getStatusCode(),
                 "populating a drop-down needs permission to configure the view");
@@ -401,7 +403,8 @@ class LiveWallViewTest {
                 + "<includeRegex>.*</includeRegex>"
                 + "</io.jenkins.plugins.livewall.LiveWallView>";
 
-        View created = View.createViewFromXML("Live Wall", new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        View created =
+                View.createViewFromXML("Live Wall", new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
         r.jenkins.addView(created);
 
         LiveWallView view = (LiveWallView) r.jenkins.getView("Live Wall");
@@ -532,8 +535,7 @@ class LiveWallViewTest {
         assertTrue(
                 kiosk.contains("data-data-url=\"" + r.contextPath + "/view/wall/wallData\""),
                 "the kiosk page must poll through the Jenkins root, not the server root");
-        assertTrue(
-                kiosk.contains("data-root-url=\"" + r.contextPath + "/\""), "and link to jobs through it too");
+        assertTrue(kiosk.contains("data-root-url=\"" + r.contextPath + "/\""), "and link to jobs through it too");
     }
 
     @Test
@@ -562,8 +564,8 @@ class LiveWallViewTest {
 
     private static List<String> labelsFrom(JenkinsRule r, String url) throws Exception {
         Page page = r.createWebClient().goTo(url, "application/json");
-        JSONArray tiles =
-                JSONObject.fromObject(page.getWebResponse().getContentAsString()).getJSONArray("tiles");
+        JSONArray tiles = JSONObject.fromObject(page.getWebResponse().getContentAsString())
+                .getJSONArray("tiles");
         List<String> labels = new java.util.ArrayList<>();
         for (int i = 0; i < tiles.size(); i++) {
             labels.add(tiles.getJSONObject(i).getString("label"));

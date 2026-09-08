@@ -26,8 +26,8 @@ public enum JobStatus {
     SUCCESS("success", 5);
 
     /* Named "id" rather than "key" to match WallOption#getId, and because a field called "key" on
-       a serializable class trips the security scan's credential-storage heuristic -- reasonably, on
-       the name alone. This one holds "success" or "failure". */
+    a serializable class trips the security scan's credential-storage heuristic -- reasonably, on
+    the name alone. This one holds "success" or "failure". */
     private final String id;
 
     private final int severity;
