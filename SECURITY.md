@@ -5,10 +5,10 @@
 **Please do not open a public issue for a security problem.** A public issue about a Jenkins plugin
 tells everyone running it exactly how to attack them, before there is a fix to upgrade to.
 
-**Report it to the Jenkins security team**, by filing an issue of type *Security* in the Jenkins
-issue tracker at [issues.jenkins.io](https://issues.jenkins.io/), against the `live-wall`
-component. Such issues are visible only to you and the security team. The full process is described
-in [How to report a security issue](https://www.jenkins.io/security/reporting/).
+**Report it to the Jenkins security team**, by following
+[How to report a security issue](https://www.jenkins.io/security/reporting/). That page is the
+authoritative description of where to file and what happens next; reports made through it are
+handled confidentially.
 
 That is the only route to use, and deliberately the only one offered here. Reporting anywhere else —
 including a GitHub private security advisory on this repository — cannot lead to a CVE being
