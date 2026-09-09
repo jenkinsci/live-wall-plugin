@@ -103,12 +103,19 @@ pipeline {
 Run it twice: the first build teaches Jenkins the estimated duration, and the second one shows the
 progress fill tracking it properly.
 
-## Install into your own Jenkins
+## Install a build of your own into your own Jenkins
 
-1. Build the plugin, or download `live-wall-<version>.hpi` from
-   [Releases](https://github.com/eduardocerqueira/jenkins-live-wall/releases).
+Normally you would install Live Wall from **Manage Jenkins → Plugins → Available plugins**, and that
+is what the README tells people to do. This page is for installing a build *you* made — a change you
+want to try on a real controller before proposing it.
+
+Releases carry no `.hpi` attachment to download: this plugin is released by
+[continuous delivery](releasing.md), which publishes to the Jenkins Maven repository, and the update
+centre serves it from there. So build it:
+
+1. `mvn clean package`, which writes `target/live-wall.hpi`.
 2. In Jenkins: **Manage Jenkins → Plugins → Advanced settings**.
-3. Under **Deploy Plugin**, choose the `.hpi` file and press **Deploy**.
+3. Under **Deploy Plugin**, choose that `.hpi` file and press **Deploy**.
 4. Restart Jenkins when it offers to.
 
 Requires **Jenkins 2.555.3 or newer**, running on **Java 21 or newer**.

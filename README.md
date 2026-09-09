@@ -7,10 +7,6 @@
 **A Jenkins view that turns your jobs into a wall of big coloured tiles, built for the television in
 the corner of the office.**
 
-```bash
-./scripts/demo.sh          # a local Jenkins, this plugin, and 20 sample jobs — in one command
-```
-
 ![A Live Wall of hexagonal tiles filling the screen. Three jobs building at the top left carry
 moving stripes; the rest are green, amber and red, with a header counting them and a
 clock.](docs/images/wall-hexagon.png)
@@ -68,30 +64,23 @@ is zero, so the tiles meet and the wall reads as one surface.*
 
 ## Quick start
 
-```bash
-git clone https://github.com/eduardocerqueira/jenkins-live-wall.git
-cd jenkins-live-wall
-./scripts/demo.sh
-```
-
-Two minutes later you have a local Jenkins with the plugin installed, twenty sample jobs in a
-realistic spread of states, and a URL to open. Use `--jobs 150` if you want to see what a busy
-controller looks like. Full details in [docs/demo.md](docs/demo.md).
-
-### On your own Jenkins
-
-1. Download `live-wall-<version>.hpi` from
-   [Releases](https://github.com/eduardocerqueira/jenkins-live-wall/releases), or build it with
-   `mvn clean package`.
-2. **Manage Jenkins → Plugins → Advanced settings → Deploy Plugin**, upload it, restart.
-3. **New View →** name it **→ Live Wall**, then pick your jobs the way you always do.
-4. Point the television at **`…/view/<name>/wall`** — the kiosk page, with no Jenkins chrome on it
+1. **Manage Jenkins → Plugins → Available plugins**, search for **Live Wall**, and install it.
+2. **New View →** name it **→ Live Wall**, then pick your jobs the way you always do.
+3. Point the television at **`…/view/<name>/wall`** — the kiosk page, with no Jenkins chrome on it
    at all. The **Full screen** button on the view page does the same for a browser you are already
    sitting in front of.
+
+That is the whole setup. Everything else is optional, and every default is chosen to be the one you
+would have picked.
 
 Requires **Jenkins 2.555.3 or newer**, running on **Java 21 or newer**. Java 21 is a requirement of
 Jenkins itself at this version, not of this plugin — core 2.555.3 is compiled to Java 21 bytecode,
 so a Java 17 controller cannot run that Jenkins at all, with or without Live Wall.
+
+Prefer to build it yourself, or want a throwaway Jenkins to try it on rather than your own?
+[docs/building.md](docs/building.md) covers building and installing from source, and
+[docs/demo.md](docs/demo.md) starts a disposable controller with the plugin and a spread of sample
+jobs in one command.
 
 ---
 
