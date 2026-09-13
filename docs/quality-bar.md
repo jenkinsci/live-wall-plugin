@@ -47,7 +47,10 @@ change it has nothing to do with.
 
 It is still a real signal: it says *the Jenkins baseline in `pom.xml` is getting old*, and moving
 that baseline is the lever. It has been pulled twice: 2.516.3 carried 38 findings including a
-critical one, 2.555.3 carried 11 with none critical, and 2.568.3 carries 1.
+critical one, 2.555.3 carried 11 with none critical, and 2.568.3 carries 1. The last two were
+measured against the same vulnerability database on the same day, so that drop is the baseline
+moving and not the database changing underneath it. Ten of the eleven were Spring and Spring
+Security, which 2.555.3 pinned at 6.2.17 and 6.5.9; core ships fixed versions from 2.568.
 
 Quote measurements with the version attached, as above, and re-measure rather than projecting. The
 figure this section carried before the second move — `2.568.1` "measured at 8" — was taken on a
