@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.AncestorInPath;
@@ -613,6 +614,45 @@ public class LiveWallView extends ListView {
     }
 
     /**
+     * The view's look, exactly as {@code lib/livewall/wall.jelly} hands it to {@code wall.js} in
+     * {@code data-*} attributes: same names, same ids, same units. It lets a client that draws the
+     * wall itself from {@code wallData} (an IDE extension, a dashboard) show the view as configured
+     * instead of guessing. Nothing here is new information: anyone who can read the view already
+     * gets all of it in the page. Unset custom colours are {@code null}.
+     */
+    JSONObject settingsJson() {
+        JSONObject settings = new JSONObject();
+        settings.element("palette", getPalette().getId());
+        settings.element("shape", getShape().getId());
+        settings.element("animation", getAnimation().getId());
+        settings.element("sizing", getSizing().getId());
+        settings.element("packing", getPacking().getId());
+        settings.element("sortBy", getSortBy().getId());
+        settings.element("gap", getTileGap());
+        settings.element("seam", getSeamWidth());
+        settings.element("burnIn", isBurnInProtection());
+        settings.element("showHeader", isShowHeader());
+        settings.element("showBuildNumber", isShowBuildNumber());
+        settings.element("refresh", getRefreshSeconds());
+        settings.element("minTileHeight", getMinTileHeight());
+        settings.element("emptyMessage", getEmptyMessage());
+        JSONObject colors = new JSONObject();
+        colors.element("background", orNull(getCustomBackground()));
+        colors.element("success", orNull(getCustomSuccess()));
+        colors.element("failure", orNull(getCustomFailure()));
+        colors.element("unstable", orNull(getCustomUnstable()));
+        colors.element("aborted", orNull(getCustomAborted()));
+        colors.element("idle", orNull(getCustomIdle()));
+        settings.element("colors", colors);
+        return settings;
+    }
+
+    /** json-lib drops a key whose value is Java null; an explicit JSON null keeps the shape stable. */
+    private static Object orNull(@CheckForNull String value) {
+        return value == null ? JSONNull.getInstance() : value;
+    }
+
+    /**
      * Serves the wall contents. Polled by {@code wall.js}; also a perfectly usable API.
      *
      * @param sortBy optional ordering for this request only, so that the preview controls and a
@@ -642,6 +682,7 @@ public class LiveWallView extends ListView {
         JSONObject payload = new JSONObject();
         payload.element("generatedAt", System.currentTimeMillis());
         payload.element("tiles", array);
+        payload.element("settings", settingsJson());
 
         rsp.setContentType("application/json;charset=UTF-8");
         rsp.setHeader("Cache-Control", "no-store, must-revalidate");

@@ -139,6 +139,13 @@ document — one object per job, carrying a label, a status, and raw timestamps 
 Everything else happens in the browser, which is what lets a wall sit open for months without
 reloading. That endpoint respects permissions: jobs you cannot read are not in it.
 
+The same document carries the view's look under `settings`, so a client that draws the wall itself
+from `wallData` can show it as configured. The keys match the attributes the page hands `wall.js`
+(`palette`, `shape`, `animation`, `sizing`, `packing`, `sortBy`, `gap`, `seam`, `burnIn`,
+`showHeader`, `showBuildNumber`, `refresh`, `minTileHeight`, `emptyMessage`), plus `colors` with
+the custom `background`, `success`, `failure`, `unstable`, `aborted` and `idle` colours, `null` when
+unset. It needs nothing more than reading the view: the page already shows all of it.
+
 Three pieces of that browser code are worth knowing about, all in
 [`wall.js`](src/main/resources/io/jenkins/plugins/livewall/wall.js):
 

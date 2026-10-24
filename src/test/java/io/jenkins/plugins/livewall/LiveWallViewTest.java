@@ -474,6 +474,62 @@ class LiveWallViewTest {
     }
 
     @Test
+    void wallDataCarriesTheLookTheWallIsDrawnWith(JenkinsRule r) throws Exception {
+        LiveWallView view = createView(r, "wall");
+        view.setIncludeRegex(".*");
+
+        // Strictly additive: the keys wall.js reads are unchanged, and settings is the only new one.
+        Page page = r.createWebClient().goTo("view/wall/wallData", "application/json");
+        JSONObject payload = JSONObject.fromObject(page.getWebResponse().getContentAsString());
+        assertEquals(
+                java.util.Set.of("generatedAt", "tiles", "settings"),
+                new java.util.HashSet<>(payload.keySet()),
+                "wallData keeps generatedAt and tiles as they were and only adds settings");
+
+        // A client that draws the wall from wallData alone (an IDE extension, a dashboard) needs the
+        // same settings wall.jelly hands wall.js as data-* attributes, with the same ids.
+        JSONObject defaults = settingsFrom(r);
+        assertEquals("vivid", defaults.getString("palette"));
+        assertEquals("rounded", defaults.getString("shape"));
+        assertEquals("progress", defaults.getString("animation"));
+        assertEquals("fit", defaults.getString("sizing"));
+        assertEquals("interlock", defaults.getString("packing"));
+        assertEquals("running", defaults.getString("sortBy"));
+        assertEquals(0, defaults.getInt("gap"));
+        assertEquals(LiveWallView.DEFAULT_SEAM_WIDTH, defaults.getInt("seam"));
+        assertFalse(defaults.getBoolean("burnIn"));
+        assertTrue(defaults.getBoolean("showHeader"));
+        assertFalse(defaults.getBoolean("showBuildNumber"));
+        assertEquals(LiveWallView.DEFAULT_REFRESH_SECONDS, defaults.getInt("refresh"));
+        assertEquals(view.getMinTileHeight(), defaults.getInt("minTileHeight"));
+        assertEquals(view.getEmptyMessage(), defaults.getString("emptyMessage"));
+        JSONObject unset = defaults.getJSONObject("colors");
+        for (String key : List.of("background", "success", "failure", "unstable", "aborted", "idle")) {
+            assertTrue(unset.has(key), key + " is always present, so the shape never changes");
+            assertTrue(unset.get(key) instanceof net.sf.json.JSONNull, key + " is null until someone sets it");
+        }
+
+        view.setPalette("neon");
+        view.setShape("hexagon");
+        view.setTileGap(4);
+        view.setShowBuildNumber(true);
+        view.setCustomSuccess("#00ff00");
+        JSONObject changed = settingsFrom(r);
+        assertEquals("neon", changed.getString("palette"));
+        assertEquals("hexagon", changed.getString("shape"));
+        assertEquals(4, changed.getInt("gap"));
+        assertTrue(changed.getBoolean("showBuildNumber"));
+        JSONObject colors = changed.getJSONObject("colors");
+        assertEquals(view.getCustomSuccess(), colors.getString("success"));
+        assertTrue(colors.get("failure") instanceof net.sf.json.JSONNull, "only what was set changes");
+    }
+
+    private static JSONObject settingsFrom(JenkinsRule r) throws Exception {
+        Page page = r.createWebClient().goTo("view/wall/wallData", "application/json");
+        return JSONObject.fromObject(page.getWebResponse().getContentAsString()).getJSONObject("settings");
+    }
+
+    @Test
     void configurationSurvivesARoundTripThroughTheForm(JenkinsRule r) throws Exception {
         LiveWallView view = createView(r, "wall");
         view.setPalette("colorsafe");
