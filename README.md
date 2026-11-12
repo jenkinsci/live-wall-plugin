@@ -19,10 +19,13 @@ striped fill means Jenkins has no duration estimate to draw a progress bar from 
 A minute and a half against a real controller: the shape, animation, palette and ordering all
 changed on a live wall, then the kiosk page a television would be pointed at.
 
-https://github.com/user-attachments/assets/e48af9e4-a600-454d-af14-13f24d65c157
+[![The demo at four times speed: the shape picker on a Live Wall view switches the tiles from
+rounded rectangles to parallelograms, diamonds and hexagons, the animation and palette change, and
+the wall ends full screen as the kiosk page, a grid of glowing hexagons counting failing, unstable,
+building and passing jobs.](docs/images/demo-preview.gif)](https://github.com/user-attachments/assets/e48af9e4-a600-454d-af14-13f24d65c157)
 
-*No player above? [Watch the demo](https://github.com/user-attachments/assets/e48af9e4-a600-454d-af14-13f24d65c157)
-— the inline video only renders on GitHub.*
+*Played here at four times speed. [Watch the full demo](https://github.com/user-attachments/assets/e48af9e4-a600-454d-af14-13f24d65c157)
+at normal speed.*
 
 ---
 
