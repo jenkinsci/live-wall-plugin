@@ -30,9 +30,11 @@ it is a claim this repository can actually stand behind.
 ### Full tree — reported loudly, but not blocking
 
 The above plus `provided` and `test` scope: Jenkins core, and the libraries core brings with it —
-Jetty, Spring, and friends. At the current baseline that is 133 components carrying **1 known
-vulnerability** (medium): CVE-2025-48924 in `commons-lang:commons-lang` 2.6, which core still brings
-along and for which the 2.x line has no fixed release.
+Jetty, Spring, and friends. At the current baseline, 2.568.3, that is 133 components carrying **2
+known vulnerabilities** (measured 2026-11-12): CVE-2026-102554 (high) in `com.google.guava:guava`
+33.6.0-jre, fixed in 33.7.2, which no LTS line ships yet; and CVE-2025-48924 (medium) in
+`commons-lang:commons-lang` 2.6, which core still brings along and for which the 2.x line has no
+fixed release.
 
 None of that is shipped by this plugin. `provided` means precisely "the controller supplies this at
 runtime": your Jenkins already has these libraries, at whatever versions your Jenkins ships, whether
@@ -41,8 +43,9 @@ administrator upgrading Jenkins.
 
 Blocking on it would therefore be a permanently red gate that no pull request could turn green, and
 the only way through would be to bulk-add ignore entries — which is how a security gate becomes
-decoration. So it is reported in full on every run, summarised in the job output, uploaded to code
-scanning, and raised as an issue by the weekly run. It is never hidden. It just does not block a
+decoration. So it is reported in full on every run, summarised in the job output, and raised as an issue
+by the weekly run. Code scanning lists the shipped scan only, so its alerts are the ones this
+repository is responsible for. It is never hidden. It just does not block a
 change it has nothing to do with.
 
 It is still a real signal: it says *the Jenkins baseline in `pom.xml` is getting old*, and moving
